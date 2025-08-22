@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>EcoTiles Interactive Prototype Visualization</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        h2 { text-align: center; }
+        .page { display: none; }
+        .active { display: block; }
+        #nav { text-align: center; margin-top: 30px; }
+        .plot {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 520px;
+        }
+        .plot > div {
+            margin: auto;
+        }
+    </style>
+</head>
+<body>
+    <div id="donutPage" class="page active">
+        <h2>Prototype Budget Allocation (₹60,000 Total)</h2>
+        <div class="plot"><div id="donut"></div></div>
+    </div>
+    <div id="timelinePage" class="page">
+        <h2>Prototype Development Timeline (3.5 Months Total)</h2>
+        <div class="plot"><div id="timeline"></div></div>
+    </div>
+    <div id="radarPage" class="page">
+        <h2>EcoTiles vs Ceramic Tiles: Sustainability & Market Comparison</h2>
+        <div class="plot"><div id="radar"></div></div>
+    </div>
+    <!-- Add to HTML body after other chart pages but before navigation -->
+<div id="compositionPage" class="page">
+    <h2>Eco Tiles Material Composition</h2>
+    <div class="plot"><div id="composition"></div></div>
+</div>
+
+    <div id="nav">
+        <button id="prevBtn">Previous</button>
+        <button id="nextBtn">Next</button>
+    </div>
+
+<script>
+    // Chart rendering
+    var donutData = [{
+        type: 'pie',
+        labels: ['Machinery & Molds', 'Raw Materials', 'Lab Testing', 'Branding & Misc.'],
+        values: [35000, 5000, 10000, 10000],
+        hole: 0.5,
+        hoverinfo: 'label+percent+value',
+        textinfo: 'percent',
+        textposition: 'inside',
+        marker: {
+            colors: ['#2ca02c','#1f77b4','#ff7f0e','#d62728']
+        }
+    }];
+    var donutLayout = { 
+        height: 500, 
+        width: 800, 
+        showlegend: true,
+        margin: { t: 60, b: 60, l: 60, r: 60 },
+    };
+    Plotly.newPlot('donut', donutData, donutLayout);
+
+    var timelineData = [{
+        type: 'bar',
+        x: [1, 1, 1, 0.5],
+        y: ['Research & Testing', 'Prototype Development', 'Pilot Production', 'Field Testing'],
+        orientation: 'h',
+        marker: { color: '#17becf' },
+        text: [
+            'Research and testing of materials and methods (1 month)',
+            'Building the prototype with feedback cycles (1 month)',
+            'Pilot scale production (1 month)',
+            'Field testing and final adjustments (2 weeks)'
+        ],
+        hoverinfo: 'text'
+    }];
+    var timelineLayout = { 
+        height: 500, 
+        width: 800, 
+        margin: {l: 180, t: 60, b: 60}, 
+        yaxis: { automargin: true } 
+    };
+    Plotly.newPlot('timeline', timelineData, timelineLayout);
+
+    var radarData = [
+        {
+            type: 'scatterpolar',
+            r: [30, 100, 90, 80, 70, 30],
+            theta: ['CO₂ Footprint', 'Recycled Content', 'Durability', 'Affordability', 'Market Target', 'CO₂ Footprint'],
+            fill: 'toself',
+            name: 'EcoTiles',
+            line: {color: 'green'}
+        },
+        {
+            type: 'scatterpolar',
+            r: [100, 0, 70, 60, 50, 100],
+            theta: ['CO₂ Footprint', 'Recycled Content', 'Durability', 'Affordability', 'Market Target', 'CO₂ Footprint'],
+            fill: 'toself',
+            name: 'Ceramic Tiles',
+            line: {color: 'red'}
+        }
+    ];
+    var radarLayout = {
+        polar: { radialaxis: { visible: true, range: [0, 120] } },
+        height: 500, 
+        width: 800,
+        margin: { t: 60, b: 60, l: 60, r: 60 },
+    };
+    Plotly.newPlot('radar', radarData, radarLayout);
+    // Add to your script after radar chart
+var compositionData = [{
+    type: 'pie',
+    labels: [
+        'Cement Binder',
+        'Fly Ash / Industrial Waste',
+        'Recycled Glass',
+        'Recycled Plastic',
+        'Other Additives (Color, Hardener)'
+    ],
+    values: [20, 25, 20, 30, 5],
+    marker: {
+        colors: [
+            '#e0438c', '#8776bf', '#e97f24', '#22b488', '#8abf37'
+        ]
+    },
+    textinfo: 'label+percent',
+    insidetextorientation: 'radial',
+    pull: [0.03,0.03,0.03,0.03,0.03]
+}];
+var compositionLayout = {
+    height: 500,
+    width: 800,
+    showlegend: false,
+    margin: { t: 60, b: 60, l: 60, r: 60 }
+};
+Plotly.newPlot('composition', compositionData, compositionLayout);
+
+// Update pages:
+var pages = ['donutPage', 'timelinePage', 'radarPage', 'compositionPage'];
+
+
+    // Page navigation logic
+    
+    var currentPage = 0;
+    function showPage(idx) {
+        pages.forEach(function(pg, i){
+            document.getElementById(pg).className = 'page' + (i === idx ? ' active' : '');
+        });
+        document.getElementById('prevBtn').disabled = (idx === 0);
+        document.getElementById('nextBtn').disabled = (idx === pages.length - 1);
+    }
+    document.getElementById('prevBtn').onclick = function() {
+        if (currentPage > 0) {
+            currentPage--;
+            showPage(currentPage);
+        }
+    };
+    document.getElementById('nextBtn').onclick = function() {
+        if (currentPage < pages.length - 1) {
+            currentPage++;
+            showPage(currentPage);
+        }
+    };
+    showPage(currentPage);
+</script>
+</body>
+</html>
