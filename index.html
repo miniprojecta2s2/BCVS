@@ -1,31 +1,232 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Tech Mahindra CSR Spend (2023-24)</title>
+  <meta charset="UTF-8" />
+  <title>Interactive Stress Graphs - Bar and Donut</title>
   <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 40px; max-width: 900px; margin-left: auto; margin-right: auto; }
+    #graphContainer > div { display: none; }
+    #graphContainer > div.active { display: block; }
+    button {
+      margin: 15px 10px 10px 10px;
+      font-size: 16px;
+      padding: 8px 20px;
+      cursor: pointer;
+    }
+    #infoBox {
+      margin-top: 24px;
+      padding: 15px;
+      border: 2px solid #3182ce;
+      border-radius: 10px;
+      background-color: #f0f8ff;
+      font-size: 18px;
+      min-height: 70px;
+      display: none;
+    }
+    #donutGrid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 40px;
+    }
+    .chartBox {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .ageTitle {
+      font-size: 22px;
+      color: #444;
+      font-weight: bold;
+      margin-bottom: 8px;
+    }
+  </style>
 </head>
 <body>
-  <div id="csrPieChart" style="width:600px;height:400px;"></div>
-  <script>
-    var data = [{
-      values: [29.96, 18.31, 6.29, 6.97, 5.56, 2.39, 1.99, 1.72, 1.04, 1.79],
-      labels: [
-        "Hostel III", "Hostel IV A", "Research Scholar Block", "Guest House", 
-        "IT Classrooms", "SB Dining (Girls' Cafeteria)", "Admission Office & Auditorium", 
-        "Mahindra E Hub", "Task Building", "Soccer Field"
-      ],
+
+<h1>Interactive Stress Graphs</h1>
+
+<div id="graphContainer">
+  <div id="barGraph" class="active">
+    <h2>Concerns Affecting the Stress of Individuals Aged 14–25 (Bar Graph)</h2>
+    <div id="bargraph"></div>
+  </div>
+
+  <div id="donutCharts">
+    <h2>Stress Factors by Age Group (Donut Charts)</h2>
+    <div id="donutGrid">
+      <div class="chartBox">
+        <div class="ageTitle">18–34</div>
+        <div id="donut1"></div>
+      </div>
+      <div class="chartBox">
+        <div class="ageTitle">35–44</div>
+        <div id="donut2"></div>
+      </div>
+      <div class="chartBox">
+        <div class="ageTitle">55–64</div>
+        <div id="donut3"></div>
+      </div>
+      <div class="chartBox">
+        <div class="ageTitle">65+</div>
+        <div id="donut4"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<button id="prevBtn" disabled>Previous</button>
+<button id="nextBtn">Next</button>
+
+<div id="infoBox"></div>
+
+<script>
+  const barDescriptions = {
+    "Finding a good job": "Concern about employability and future job prospects affects more than half of young individuals.",
+    "Dealing with negative body image": "Negative self-image, often influenced by social media, can lead to anxiety and self-esteem issues.",
+    "Family relationships": "Strained or complex family interactions contribute to emotional stress.",
+    "Friendships": "Challenges in navigating social groups or conflicts with friends can impact well-being.",
+    "Family money problems": "Financial instability at home leads to security concerns and extra pressure.",
+    "Parents/guardians under stress": "Stress experienced by caregivers can transfer to young people, affecting their mental state.",
+    "Romantic relationships": "Breakups, conflicts, or loneliness in romantic life are common stressors.",
+    "Getting good grades": "Academic pressure and the drive for excellence are major student concerns.",
+    "What to do after graduation": "Uncertainty about life after school or college creates significant anxiety.",
+    "Having student loan debt": "Financial obligations from education can loom over students for years.",
+    "Dealing with peer pressure": "Trying to fit in and meet group expectations is mentally taxing for many youths."
+  };
+
+  const donutDescriptions = {
+    "18–34-Health": "82% worried about health, highest among all age groups.",
+    "18–34-Money": "82% also worried about money, equal to health concerns in the youngest group.",
+    "35–44-Money": "77% of 35–44 year olds worried most about money.",
+    "35–44-Economy": "Economy (74%) was the second most stressful factor in this age group.",
+    "55–64-Money": "63% in the 55–64 group worried about money.",
+    "55–64-Economy": "Economy matched money as a source of stress for 63%.",
+    "55–64-Health": "Health was nearly equal, with 62% worried.",
+    "65+-Economy": "Economy was the top stressor for 65+ (47%).",
+    "65+-Health": "45% in this age group worried about health."
+  };
+
+  let currentGraphIndex = 0;
+  const barGraphDiv = document.getElementById('barGraph');
+  const donutChartsDiv = document.getElementById('donutCharts');
+  const prevBtn = document.getElementById('prevBtn');
+  const nextBtn = document.getElementById('nextBtn');
+  const infoBox = document.getElementById('infoBox');
+
+  function showGraph(index) {
+    if (index === 0) {
+      barGraphDiv.classList.add('active');
+      donutChartsDiv.classList.remove('active');
+      prevBtn.disabled = true;
+      nextBtn.disabled = false;
+      infoBox.style.display = 'none';
+    } else {
+      barGraphDiv.classList.remove('active');
+      donutChartsDiv.classList.add('active');
+      prevBtn.disabled = false;
+      nextBtn.disabled = true;
+      infoBox.style.display = 'none';
+    }
+    currentGraphIndex = index;
+  }
+
+  prevBtn.onclick = () => showGraph(currentGraphIndex - 1);
+  nextBtn.onclick = () => showGraph(currentGraphIndex + 1);
+
+  showGraph(0);
+
+  Plotly.newPlot('bargraph', [{
+    type: 'bar',
+    x: [
+      53, 44, 40, 37, 33, 30, 28, 28, 28, 25, 25
+    ],
+    y: [
+      "Finding a good job",
+      "Dealing with negative body image",
+      "Family relationships",
+      "Friendships",
+      "Family money problems",
+      "Parents/guardians under stress",
+      "Romantic relationships",
+      "Getting good grades",
+      "What to do after graduation",
+      "Having student loan debt",
+      "Dealing with peer pressure"
+    ],
+    orientation: 'h',
+    marker: {color: '#23AEEF'},
+    hoverinfo: 'y+x',
+  }], {
+    height: 600,
+    width: 800,
+    margin: {l: 230, r:40, t:40, b:40},
+    xaxis: {title: "Share of Individuals (%)", range: [0, 55]},
+    yaxis: {automargin: true}
+  });
+
+  document.getElementById('bargraph').on('plotly_click', function(data){
+    var label = data.points[0].y;
+    infoBox.style.display = 'block';
+    infoBox.textContent = barDescriptions[label] || "";
+  });
+
+  const donutData = [
+    {
+      element: 'donut1',
+      name: "18–34",
+      labels: ["Health", "Money"],
+      values: [82, 82],
+      colors: ['#FF6F61','#3366CC']
+    },
+    {
+      element: 'donut2',
+      name: "35–44",
+      labels: ["Money", "Economy"],
+      values: [77, 74],
+      colors: ['#6A4C93','#FFD166']
+    },
+    {
+      element: 'donut3',
+      name: "55–64",
+      labels: ["Money", "Economy", "Health"],
+      values: [63, 63, 62],
+      colors: ['#43AA8B','#F94144','#277DA1']
+    },
+    {
+      element: 'donut4',
+      name: "65+",
+      labels: ["Economy", "Health"],
+      values: [47, 45],
+      colors: ['#F3722C','#577590']
+    }
+  ];
+
+  donutData.forEach(function(cfg) {
+    Plotly.newPlot(cfg.element, [{
       type: 'pie',
-      hoverinfo: 'label+percent+value',
+      labels: cfg.labels,
+      values: cfg.values,
+      hole: 0.5,
+      marker: {colors: cfg.colors},
       textinfo: 'label+percent',
-      marker: {line: {color: '#ffffff', width: 2}}
-    }];
+      hoverinfo: 'label+value+name',
+      showlegend: false
+    }], {
+      height: 330,
+      width: 350,
+      margin: {t:30, b:30, l:30, r:30}
+    });
 
-    var layout = {
-      title: "Tech Mahindra CSR Infrastructure Spend 2023-24 (in ₹ Crores)",
-      legend: {x: 1, y: 0.5}
-    };
+    document.getElementById(cfg.element).on('plotly_click', function(d){
+      var label = d.points[0].label;
+      if(label){
+        infoBox.style.display = "block";
+        infoBox.textContent = donutDescriptions[cfg.name + "-" + label] || "";
+      }
+    });
+  });
+</script>
 
-    Plotly.newPlot('csrPieChart', data, layout);
-  </script>
 </body>
 </html>
